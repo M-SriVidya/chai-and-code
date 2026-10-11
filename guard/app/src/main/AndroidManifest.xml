@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <permission
+        android:name="com.veil.guard.permission.CONSOLE"
+        android:protectionLevel="signature" />
+
+    <application
+        android:label="Veil Guard"
+        android:theme="@android:style/Theme.DeviceDefault">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ParentLockActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".teacher.TeacherDebugActivity"
+            android:exported="true" />
+
+        <!-- Phase 1.1 probe: does nothing. It only lets us check that this phone allows a sideloaded
+             app to enable an accessibility service (restricted settings). -->
+        <service
+            android:name=".probe.ProbeAccessibilityService"
+            android:exported="true"
+            android:label="@string/probe_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/probe_accessibility_service" />
+        </service>
+
+        <!-- Phase 4.1.1: screen-capture consent, foreground service and command receiver. -->
+        <activity
+            android:name=".capture.service.ConsentActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <service
+            android:name=".capture.service.CaptureService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection|specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Waiting for screen-capture consent to resume on-device covering" />
+        </service>
+
+        <receiver
+            android:name=".capture.service.CaptureCommandReceiver"
+            android:exported="true"
+            android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="com.veil.guard.capture.CMD" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Phase 4.2.1: the production accessibility service (screen signals, screenshots, later the overlay). -->
+        <service
+            android:name=".signals.GuardAccessibilityService"
+            android:exported="true"
+            android:label="@string/guard_a11y_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/guard_accessibility_service" />
+        </service>
+
+        <receiver
+            android:name=".signals.LogControlReceiver"
+            android:exported="true"
+            android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="com.veil.guard.LOG" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Phase 4.3.1: overlay debug command receiver. -->
+        <receiver
+            android:name=".overlay.OverlayCmdReceiver"
+            android:exported="true"
+            android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="com.veil.guard.overlay.CMD" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Console bridge: bound by the Console APK (same signature). -->
+        <service
+            android:name=".bridge.ConsoleBridgeService"
+            android:exported="true"
+            android:permission="com.veil.guard.permission.CONSOLE" />
+    </application>
+</manifest>
