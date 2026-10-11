@@ -1,0 +1,13 @@
+=== D-signed-python verify · 2026-10-07 01:19:17
+ok    toolchain.json python 3.11.9 nuget pin
+ok    .python-version 3.11.9
+ok    env.ps1 sets UV_PYTHON + downloads never
+ok    env.sh sets UV_PYTHON + downloads never
+ok    bootstrap.ps1 parses
+ok    bootstrap has no uv python install
+ok    UV_PYTHON exists
+3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]
+ok    uv run prints 3.11.9
+ok    second uv run reuses .venv
+VERIFY D-signed-python: PASS
+exit 0
